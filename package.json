@@ -1,12 +1,15 @@
 {
   "name": "@quirrel/bullmq",
-  "version": "1.9.0",
+  "version": "1.9.0-1",
   "description": "Queue for messages and jobs based on Redis",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "author": "Taskforce.sh Inc.",
   "license": "MIT",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "tsc && yarn copylua",
     "copylua": "copyfiles -f ./src/commands/*.lua ./dist/commands",
