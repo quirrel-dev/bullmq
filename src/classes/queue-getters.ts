@@ -10,7 +10,11 @@ export class QueueGetters extends QueueBase {
     return Job.fromId(this, jobId);
   }
 
-  getJobFromIdPattern(jobId: string, cursor = 0, count = 100) {
+  getJobsByName(name: string, cursor: number, count = 100) {
+    return Job.fromName(this, name, cursor, count);
+  }
+
+  getJobsFromIdPattern(jobId: string, cursor: number, count = 100) {
     return Job.fromIdPattern(this, jobId, cursor, count);
   }
 
