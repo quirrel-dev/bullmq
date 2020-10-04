@@ -90,7 +90,7 @@ export class Scripts {
       `${jobId}:logs`,
     ].map(name => queue.toKey(name));
     return (<any>client).removeJob(
-      keys.concat([queue.keys.events, queue.byNameKey(''), jobId]),
+      keys.concat([queue.keys.events, queue.keys['by-name'], jobId]),
     );
   }
 
@@ -142,6 +142,7 @@ export class Scripts {
       queueKeys.priority,
       queueKeys.events,
       queueKeys.meta,
+      queue.byNameKey(job.name),
     ];
 
     let remove;

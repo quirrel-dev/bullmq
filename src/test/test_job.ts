@@ -632,13 +632,13 @@ describe('Job', function() {
         {
           delay: 5000,
           jobId: '3',
+          removeOnComplete: true,
         },
       );
 
       await delay(500);
 
-      const { jobs: fooJobs, newCursor } = await Job.fromName(
-        queue,
+      const { jobs: fooJobs, newCursor } = await queue.getJobsByName(
         'foo',
         0,
         1000,
@@ -651,6 +651,36 @@ describe('Job', function() {
 
       const { jobs: barJobs } = await Job.fromName(queue, 'bar');
       expect(barJobs).to.have.length(1);
+
+      await barJobs[0].remove();
+
+      const { jobs: emptyBarJobs } = await Job.fromName(queue, 'bar');
+      expect(emptyBarJobs).to.eql([]);
+    });
+
+    describe('when jobs are removed using `moveToCompleted`', () => {
+      it("doesn't try to return them anymore", async () => {
+        const job = await queue.add(
+          'default',
+          { i: "'m a job" },
+          { delay: 5000, removeOnComplete: true },
+        );
+
+        const { jobs, newCursor } = await queue.getJobsByName('default', 0);
+        expect(newCursor).to.be.null;
+        expect(jobs).to.have.length(1);
+
+        await job.promote();
+
+        const worker = new Worker(queue.name, async () => {});
+
+        await delay(500);
+
+        const { jobs: emptyJobs } = await queue.getJobsByName('default', 0);
+        expect(emptyJobs).to.eql([]);
+
+        await worker.close();
+      });
     });
   });
 });
