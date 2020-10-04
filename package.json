@@ -1,6 +1,6 @@
 {
   "name": "@quirrel/bullmq",
-  "version": "1.9.0-4",
+  "version": "1.9.0-5",
   "description": "Queue for messages and jobs based on Redis",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
