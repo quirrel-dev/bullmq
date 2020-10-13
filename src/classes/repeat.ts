@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import { JobsOptions, RepeatOptions } from '../interfaces';
 import { Job, QueueBase } from './';
 
@@ -69,7 +68,7 @@ export class Repeat extends QueueBase {
     //
     // Generate unique job id for this iteration.
     //
-    const jobId = getRepeatJobId(name, nextMillis, md5(repeatJobKey));
+    const jobId = getRepeatJobId(name, nextMillis, b64(repeatJobKey));
     const now = Date.now();
     const delay = nextMillis - now;
 
@@ -92,7 +91,7 @@ export class Repeat extends QueueBase {
     const client = await this.client;
 
     const repeatJobKey = getRepeatKey(name, repeat);
-    const repeatJobId = getRepeatJobId(name, '', md5(repeatJobKey));
+    const repeatJobId = getRepeatJobId(name, '', b64(repeatJobKey));
     const queueKey = this.keys[''];
 
     return (<any>client).removeRepeatable(
@@ -113,7 +112,7 @@ export class Repeat extends QueueBase {
     return (<any>client).removeRepeatable(
       this.keys.repeat,
       this.keys.delayed,
-      data.id,
+      `repeat:${data.name}:${b64(repeatJobKey)}:`,
       repeatJobKey,
       queueKey,
     );
@@ -174,8 +173,9 @@ function getRepeatKey(name: string, repeat: RepeatOptions) {
   const endDate = repeat.endDate ? new Date(repeat.endDate).getTime() : '';
   const tz = repeat.tz || '';
   const suffix = (repeat.cron ? repeat.cron : String(repeat.every)) || '';
+  const id = repeat.jobId || '';
 
-  return `${name}::${endDate}:${tz}:${suffix}`;
+  return `${name}:${id}:${endDate}:${tz}:${suffix}`;
 }
 
 function getNextMillis(millis: number, opts: RepeatOptions) {
@@ -205,8 +205,6 @@ function getNextMillis(millis: number, opts: RepeatOptions) {
   }
 }
 
-function md5(str: string) {
-  return createHash('md5')
-    .update(str)
-    .digest('hex');
+function b64(str: string) {
+  return Buffer.from(str).toString('base64');
 }
